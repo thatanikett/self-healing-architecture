@@ -1,0 +1,65 @@
+title Self-Healing Web Application Architecture
+
+// Data Plane
+Internet [icon: globe]
+
+ALB Security Group [icon: aws-shield, label: "alb-sg"] {
+  Application Load Balancer [icon: aws-elb]
+}
+
+Target Group [icon: aws-target-group, label: "Target Group (/health)"]
+
+Auto Scaling Group [icon: aws-ec2-auto-scaling, label: "ASG (1-3 instances)"] {
+  Webserver Security Group [icon: aws-shield, label: "webserver-sg"] {
+    EC2 Instance 1 [icon: aws-ec2, label: "EC2"] {
+      Nginx 1 [icon: nginx, label: "Nginx"]
+      Gunicorn 1 [icon: gunicorn, label: "Gunicorn"]
+      Flask 1 [icon: python, label: "python"]
+    }
+    EC2 Instance 2 [icon: aws-ec2, label: "EC2"] {
+      Nginx 2 [icon: nginx, label: "Nginx"]
+      Gunicorn 2 [icon: gunicorn, label: "Gunicorn"]
+      Flask 2 [icon: python, label: "Flask"]
+    }
+  }
+}
+
+// Control Plane
+Control Plane [color: purple, icon: settings] {
+  CloudWatch [icon: aws-cloudwatch, label: "CloudWatch (CPU)"]
+  Scale Out Alarm [icon: aws-cloudwatch-alarm, label: "CPU > 60%"]
+  Scale In Alarm [icon: aws-cloudwatch-alarm, label: "CPU < 30%"]
+  Scale Out Policy [icon: aws-auto-scaling, label: "Scale Out Policy"]
+  Scale In Policy [icon: aws-auto-scaling, label: "Scale In Policy"]
+}
+
+// Infrastructure Definition
+
+  Launch Template [icon: aws-ec2]
+  GitHub [icon: github, label: "App Source"]
+data_script.sh [icon: gnu-bash]
+
+
+// Data Plane Connections
+Internet > Application Load Balancer
+Application Load Balancer > Target Group: HTTP 80
+Target Group > Webserver Security Group: health check
+ALB Security Group > Webserver Security Group: port 80 only [color: green]
+
+// Control Plane Connections
+CloudWatch <-- Webserver Security Group: CPUUtilization
+CloudWatch > Scale Out Alarm
+CloudWatch > Scale In Alarm
+Scale Out Alarm > Scale Out Policy
+Scale In Alarm > Scale In Policy
+Scale Out Policy > Auto Scaling Group: add instance
+Scale In Policy > Auto Scaling Group: remove instance
+
+// Infrastructure Connections
+Launch Template > EC2 Instance 1: instance config
+GitHub > Launch Template: source code
+data_script.sh > Launch Template: [color: orange]
+Nginx 1 > Gunicorn 1: [color: orange]
+Gunicorn 1 > Flask 1: [color: orange]
+Nginx 2 > Gunicorn 2: [color: orange]
+Gunicorn 2 > Flask 2: [color: orange]

@@ -1,2 +1,71 @@
-.terraform
+# Terraform State Files
+*.tfstate
+*.tfstate.*
+.terraform/
+
+# Terraform Lock Files
 .terraform.lock.hcl
+
+# Terraform Overrides
+override.tf
+override.tf.json
+*_override.tf
+*_override.tf.json
+
+# Terraform CLI Arguments (local)
+.terraformrc
+terraform.rc
+
+# Terraform Plan Files
+*.tfplan
+*.plan
+
+# Terraform Crash Logs
+crash.log
+crash.*.log
+
+# Terraform Exclude Files
+exclude
+
+# Local .terraform directories
+**/.terraform/*
+
+# .tfvars files (with sensitive data)
+*.tfvars
+*.tfvars.json
+!example.tfvars
+
+# Backend Configuration Files (often contain secrets)
+backend-config.hcl
+backend-*.hcl
+
+# IDE and Editor Files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# AWS-specific
+.aws/
+.aws-iam-authenticator
+
+# Sensitive Files
+*.pem
+*.key
+*.pub
+.ssh/
+credentials.json
+secrets.json
+*.env
+.env
+.env.local
+
+# OS Files
+Thumbs.db
+.DS_Store
+
+# Logs
+*.log
+logs/

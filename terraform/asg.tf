@@ -5,7 +5,7 @@ resource "aws_autoscaling_group" "app_asg" {
   desired_capacity          = 1
   vpc_zone_identifier       = data.aws_subnets.default.ids
   health_check_type         = "ELB"
-  health_check_grace_period = 60
+  health_check_grace_period = 300
 
   launch_template {
     id      = aws_launch_template.app.id

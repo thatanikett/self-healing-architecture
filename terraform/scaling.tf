@@ -27,8 +27,6 @@ resource "aws_cloudwatch_metric_alarm" "cpu_high" {
   dimensions = {
     AutoScalingGroupName = aws_autoscaling_group.app_asg.name
   }
-
-  alarm_actions = [aws_autoscaling_policy.scale_out.arn]
 }
 
 resource "aws_cloudwatch_metric_alarm" "cpu_low" {

@@ -1,8 +1,8 @@
 resource "aws_autoscaling_group" "app_asg" {
   name                      = "${var.project_name}-asg"
-  min_size                  = 1
-  max_size                  = 3
-  desired_capacity          = 1
+  min_size                  = 2
+  max_size                  = 4
+  desired_capacity          = 2
   vpc_zone_identifier       = data.aws_subnets.default.ids
   health_check_type         = "ELB"
   health_check_grace_period = 300

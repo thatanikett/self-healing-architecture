@@ -1,11 +1,16 @@
 #!/bin/bash
 set -e
 
-# 1. Install dependencies and CloudWatch Agent
+#Install dependencies and CloudWatch Agent & ssm-agent
 yum update -y
-yum install -y git python3 python3-pip nginx amazon-cloudwatch-agent
+yum install -y git python3 python3-pip nginx amazon-cloudwatch-agent amazon-ssm-agent
 
-# 2. Configure CloudWatch Agent to track Nginx and Flask logs
+# Install stress-ng for CPU Stress fault injection
+# Using amazon-linux-extras for AL2 or directly for AL2023
+amazon-linux-extras install epel -y || yum install -y epel-release || true
+yum install -y stress-ng || true
+
+# Configure CloudWatch Agent to track Nginx and Flask logs
 mkdir -p /opt/aws/amazon-cloudwatch-agent/etc/
 cat <<EOF > /opt/aws/amazon-cloudwatch-agent/etc/amazon-cloudwatch-agent.json
 {
@@ -30,11 +35,15 @@ cat <<EOF > /opt/aws/amazon-cloudwatch-agent/etc/amazon-cloudwatch-agent.json
 }
 EOF
 
-# 3. Start CloudWatch Agent
+# Start CloudWatch Agent
 /opt/aws/amazon-cloudwatch-agent/bin/amazon-cloudwatch-agent-ctl \
     -a fetch-config -m ec2 -s -c file:/opt/aws/amazon-cloudwatch-agent/etc/amazon-cloudwatch-agent.json
 
-# 4. Clone testWebsite app
+# Start SSM Agent
+systemctl enable amazon-ssm-agent
+systemctl start amazon-ssm-agent
+
+# Clone testWebsite app
 cd /home/ec2-user
 git clone https://github.com/thatanikett/testWebsite.git
 chown -R ec2-user:ec2-user /home/ec2-user/testWebsite
@@ -70,6 +79,10 @@ systemctl enable nginx testWebsite
 systemctl start testWebsite
 
 # 8. Configure Nginx Proxy
+# Remove default nginx port 80 configs to avoid collision
+sed -i 's/listen       80 default_server;/listen       8080 default_server;/g' /etc/nginx/nginx.conf || true
+sed -i 's/listen       \[::\]:80 default_server;/listen       \[::\]:8080 default_server;/g' /etc/nginx/nginx.conf || true
+
 cat <<EOF > /etc/nginx/conf.d/testWebsite.conf
 server {
     listen 80;
